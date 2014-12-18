@@ -5,8 +5,10 @@
   accelerate: false
   sudo: true
 
-
   roles:
     - Azulinho.azulinho-google-dns
+    - Azulinho.azulinho-jenkins-server
+    - Azulinho.azulinho-jenkins-plugins
+    - Azulinho.azulinho-jenkins-reconfigure-jobs-using-jinja2
     - this-github-role
 
