@@ -1,7 +1,7 @@
 # vim: ft=yaml:foldmethod=indent:foldenable
 #
 # jenkins configuration settings
-jenkins:
+azulinho_jenkins_server:
   version: 1.592-1.1
   dest: /opt/jenkins
   lib: /var/lib/jenkins
@@ -10,7 +10,49 @@ jenkins:
   cli_dest: '/opt/jenkins/jenkins-cli.jar' # Jenkins CLI destination
   updates_dest: '/opt/jenkins/updates_jenkins.json' # Jenkins updates file
 
+  views:
+    list:
+      - { name: 'All',
+          description: 'All',
+          includeRegex: '.*',
+          columns: &all_columns_view [
+            'hudson.views.StatusColumn',
+            'hudson.views.WeatherColumn',
+            'hudson.views.JobColumn',
+            'hudson.views.LastSuccessColumn',
+            'hudson.views.LastFailureColumn',
+            'hudson.views.LastDurationColumn',
+            'hudson.views.BuildButtonColumn']}
+
+      - { name: 'DSL_BUILD',
+          description: 'All BUILD jobs built using the DSL',
+          includeRegex: 'DSL_BUILD.*',
+          columns: *all_columns_view }
+
+      - { name: 'DSL_DEPLOY',
+          description: 'All DEPLOY jobs built using the DSL',
+          includeRegex: 'DSL_DEPLOY.*',
+          columns: *all_columns_view }
+
+    # the pipeline block is used to configure the PIPELINE views
+    # in jenkins.
+    pipeline:
+      - { name: 'PIPELINE1',
+          selectedJob: 'DSL_DEPLOY-job1',
+          firstJob: 'DSL_DEPLOY-job1',
+          noOfDisplayedBuilds: '5',
+          buildViewTitle: 'Deployment Pipeline 1' }
+
+      - { name: 'PIPELINE2',
+          selectedJob: 'jinja2_deploy_zabbix',
+          firstJob: 'jinja2_deploy_zabbix',
+          noOfDisplayedBuilds: '5',
+          startsWithParameters: true,
+          buildViewTitle: 'Zabbix Deployment Pipeline' }
+
+
   # list of jenkins plugins to be installed on the jenkins box
+azulinho_jenkins_plugins:
   plugins: [
     { name: 'ruby-runtime', version: '0.12'},
     { name: 'antisamy-markup-formatter', version: '1.3'},
@@ -73,6 +115,7 @@ jenkins:
     { name: 'job-log-logger-plugin', version: '1.0'},
     { name: 'translation', version: '1.12'} ]
 
+azulinho_jenkins_reconfigure_jobs_using_jinja2:
   jobs:
     jinja2_base_template:
       options: &base_template_options { disabled: false,
@@ -245,46 +288,4 @@ jenkins:
     jinja2_example4: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job4" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job5']} ]}
     jinja2_example5: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job5" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job6']} ]}
     jinja2_example6: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job6" ]} ], buildWrappers: *base_template_wrappers }
-
-views:
-  list:
-    - { name: 'All',
-        description: 'All',
-        includeRegex: '.*',
-        columns: &all_columns_view [
-          'hudson.views.StatusColumn',
-          'hudson.views.WeatherColumn',
-          'hudson.views.JobColumn',
-          'hudson.views.LastSuccessColumn',
-          'hudson.views.LastFailureColumn',
-          'hudson.views.LastDurationColumn',
-          'hudson.views.BuildButtonColumn']}
-
-    - { name: 'DSL_BUILD',
-        description: 'All BUILD jobs built using the DSL',
-        includeRegex: 'DSL_BUILD.*',
-        columns: *all_columns_view }
-
-    - { name: 'DSL_DEPLOY',
-        description: 'All DEPLOY jobs built using the DSL',
-        includeRegex: 'DSL_DEPLOY.*',
-        columns: *all_columns_view }
-
-  # the pipeline block is used to configure the PIPELINE views
-  # in jenkins.
-  pipeline:
-    - { name: 'PIPELINE1',
-        selectedJob: 'DSL_DEPLOY-job1',
-        firstJob: 'DSL_DEPLOY-job1',
-        noOfDisplayedBuilds: '5',
-        buildViewTitle: 'Deployment Pipeline 1' }
-
-    - { name: 'PIPELINE2',
-        selectedJob: 'jinja2_deploy_zabbix',
-        firstJob: 'jinja2_deploy_zabbix',
-        noOfDisplayedBuilds: '5',
-        startsWithParameters: true,
-        buildViewTitle: 'Zabbix Deployment Pipeline' }
-
-
 
